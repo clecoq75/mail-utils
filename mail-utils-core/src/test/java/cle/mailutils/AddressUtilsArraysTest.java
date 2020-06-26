@@ -6,7 +6,6 @@ import org.junit.runners.Parameterized;
 
 import javax.mail.Address;
 import javax.mail.internet.AddressException;
-import javax.mail.internet.InternetAddress;
 import java.util.Arrays;
 
 import static cle.mailutils.TestUtils.toAddressList;
