@@ -49,10 +49,12 @@ public class MessageComparator {
 
     public boolean isSame(InputStream inputStream1, InputStream inputStream2) throws MessagingException {
         Session s = Session.getInstance(new Properties());
-        MimeMessage message1 = new MimeMessage(s, inputStream1);
-        MimeMessage message2 = new MimeMessage(s, inputStream2);
+        return isSame(new MimeMessage(s, inputStream1), new MimeMessage(s, inputStream2));
+    }
+
+    public boolean isSame(MimeMessage message1, MimeMessage message2) throws MessagingException {
         return sentDatesAreEquals(message1, message2)
-                && sendersAreEquals(message1, message2)
+                && fromAreEquals(message1, message2)
                 && recipientsAreEquals(message1, message2)
                 && subjectAreEquals(message1, message2);
     }
@@ -69,10 +71,10 @@ public class MessageComparator {
         return Objects.equals(date1, date2);
     }
 
-    boolean sendersAreEquals(MimeMessage message1, MimeMessage message2) throws MessagingException {
-        Address from1 = message1.getSender();
-        Address from2 = message2.getSender();
-        return AddressUtils.equals(from1, from2, checkPersonals);
+    boolean fromAreEquals(MimeMessage message1, MimeMessage message2) throws MessagingException {
+        Address[] recipients1 = message1.getFrom();
+        Address[] recipients2 = message2.getFrom();
+        return AddressUtils.equals(recipients1, recipients2, checkPersonals);
     }
 
     boolean recipientsAreEquals(MimeMessage message1, MimeMessage message2) throws MessagingException {
@@ -82,10 +84,7 @@ public class MessageComparator {
         if (checkCC && recipientsAreNotEquals(message1, message2, MimeMessage.RecipientType.CC)) {
             return false;
         }
-        if (checkBCC && recipientsAreNotEquals(message1, message2, MimeMessage.RecipientType.BCC)) {
-            return false;
-        }
-        return true;
+        return !checkBCC || !recipientsAreNotEquals(message1, message2, MimeMessage.RecipientType.BCC);
     }
 
     private boolean recipientsAreNotEquals(MimeMessage message1, MimeMessage message2, javax.mail.Message.RecipientType type) throws MessagingException {

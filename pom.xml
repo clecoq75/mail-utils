@@ -68,6 +68,7 @@
         <org.apache.commons.lang3.version>3.8.1</org.apache.commons.lang3.version>
         <org.apache.commons.collections4.version>4.2</org.apache.commons.collections4.version>
         <org.apache.commons.commons-io.version>2.6</org.apache.commons.commons-io.version>
+        <org.apache.commons.commons-codec.version>1.14</org.apache.commons.commons-codec.version>
 
         <!-- Jackson -->
         <com.fasterxml.jackson.version>2.9.10</com.fasterxml.jackson.version>
@@ -112,6 +113,12 @@
                 <artifactId>commons-io</artifactId>
                 <version>${org.apache.commons.commons-io.version}</version>
             </dependency>
+            <dependency>
+                <groupId>commons-codec</groupId>
+                <artifactId>commons-codec</artifactId>
+                <version>${org.apache.commons.commons-codec.version}</version>
+            </dependency>
+
 
             <!-- Jackson -->
             <dependency>

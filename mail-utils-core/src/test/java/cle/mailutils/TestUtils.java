@@ -11,7 +11,7 @@ import java.util.Objects;
 import static org.junit.Assert.fail;
 
 public final class TestUtils {
-    private static class TestAddress extends Address {
+    static class TestAddress extends Address {
         private final String address;
 
         public TestAddress(String address) {

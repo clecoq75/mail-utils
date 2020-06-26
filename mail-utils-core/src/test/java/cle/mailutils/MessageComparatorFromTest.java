@@ -4,6 +4,7 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.Parameterized;
 
+import javax.mail.Address;
 import javax.mail.MessagingException;
 import javax.mail.Session;
 import javax.mail.internet.MimeMessage;
@@ -15,9 +16,9 @@ import static cle.mailutils.TestUtils.createAddress;
 import static org.junit.Assert.assertEquals;
 
 @RunWith(Parameterized.class)
-public class MessageComparatorSenderTest {
+public class MessageComparatorFromTest {
 
-    @Parameterized.Parameters(name= "{index}: sendersAreEquals(\"{0}\" <{1}>, \"{2}\" <{3}>) should be {5} (checkPersonals={4})")
+    @Parameterized.Parameters(name= "{index}: fromAreEquals(\"{0}\" <{1}>, \"{2}\" <{3}>) should be {5} (checkPersonals={4})")
     public static Iterable<Object[]> data() {
         return Arrays.asList(new Object[][] {
                 // Both are null
@@ -59,7 +60,7 @@ public class MessageComparatorSenderTest {
     private boolean checkPersonals;
     private boolean expected;
 
-    public MessageComparatorSenderTest(String personal1, String address1, String personal2, String address2, boolean checkPersonal, boolean expected) throws UnsupportedEncodingException, MessagingException {
+    public MessageComparatorFromTest(String personal1, String address1, String personal2, String address2, boolean checkPersonal, boolean expected) throws UnsupportedEncodingException, MessagingException {
         message1 = createMessages(personal1, address1);
         message2 = createMessages(personal2, address2);
         this.checkPersonals = checkPersonal;
@@ -70,13 +71,16 @@ public class MessageComparatorSenderTest {
     public void test() throws MessagingException {
         MessageComparator messageComparator = new MessageComparator();
         messageComparator.setCheckPersonals(checkPersonals);
-        assertEquals(expected, messageComparator.sendersAreEquals(message1, message2));
+        assertEquals(expected, messageComparator.fromAreEquals(message1, message2));
     }
 
     public MimeMessage createMessages(String displayName1, String email1) throws MessagingException, UnsupportedEncodingException {
         Session session = Session.getInstance(new Properties());
         MimeMessage message = new MimeMessage(session);
-        message.setSender(createAddress(displayName1, email1, true));
+        Address address = createAddress(displayName1, email1, true);
+        if (address!=null) {
+            message.addFrom(new Address[]{ address });
+        }
         return message;
     }
 }

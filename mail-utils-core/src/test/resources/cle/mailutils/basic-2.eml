@@ -1,0 +1,25 @@
+MIME-Version: 1.0
+Date: Thu, 25 Jun 2020 16:59:41 +0200
+References: <1@mail.gmail.com> <po@gmail.com>
+In-Reply-To: <654dz@gmail.com>
+Message-ID: <zzz@mail.gmail.com>
+Subject: Test
+From: Niels <niels.bohr@caramail.fr>
+To: Max <max.planck@caramail.fr>, Werner <werner.heisenberg@caramail.fr>
+Content-Type: multipart/alternative; boundary="000000000000a05b0105a8e9d72a"
+
+--000000000000a05b0105a8e9d72a
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
+
+Hello !
+
+Niels
+
+--000000000000a05b0105a8e9d72a
+Content-Type: text/html; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
+
+<div><p>Hello !</p><p>Niels</p></div>
+
+--000000000000a05b0105a8e9d72a--
