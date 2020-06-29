@@ -43,8 +43,8 @@
 
     <licenses>
         <license>
-            <name>GNU General Public License Version 3</name>
-            <url>http://www.gnu.org/licenses/gpl-3.0.txt</url>
+            <name>The Apache Software License, Version 2.0</name>
+            <url>http://www.apache.org/licenses/LICENSE-2.0.txt</url>
         </license>
     </licenses>
 
@@ -59,20 +59,12 @@
         <maven-antrun-plugin.version>1.8</maven-antrun-plugin.version>
         <maven-assembly-plugin.version>3.1.1</maven-assembly-plugin.version>
         <exec-maven-plugin.version>1.6.0</exec-maven-plugin.version>
-        <!-- <org.owasp.dependency-check-maven.version>3.1.0</org.owasp.dependency-check-maven.version> -->
 
         <!-- JavaMail -->
         <javax.mail.version>1.4</javax.mail.version>
 
         <!-- Apache Commons -->
-        <org.apache.commons.lang3.version>3.8.1</org.apache.commons.lang3.version>
-        <org.apache.commons.collections4.version>4.2</org.apache.commons.collections4.version>
-        <org.apache.commons.commons-io.version>2.6</org.apache.commons.commons-io.version>
         <org.apache.commons.commons-codec.version>1.14</org.apache.commons.commons-codec.version>
-
-        <!-- Jackson -->
-        <com.fasterxml.jackson.version>2.9.10</com.fasterxml.jackson.version>
-        <com.fasterxml.jackson-databind.version>2.9.10.4</com.fasterxml.jackson-databind.version>
 
         <!-- Logback -->
         <ch.qos.logback.version>1.2.3</ch.qos.logback.version>
@@ -97,44 +89,10 @@
                 <version>${javax.mail.version}</version>
             </dependency>
 
-            <!-- Apache -->
-            <dependency>
-                <groupId>org.apache.commons</groupId>
-                <artifactId>commons-lang3</artifactId>
-                <version>${org.apache.commons.lang3.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>org.apache.commons</groupId>
-                <artifactId>commons-collections4</artifactId>
-                <version>${org.apache.commons.collections4.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>commons-io</groupId>
-                <artifactId>commons-io</artifactId>
-                <version>${org.apache.commons.commons-io.version}</version>
-            </dependency>
             <dependency>
                 <groupId>commons-codec</groupId>
                 <artifactId>commons-codec</artifactId>
                 <version>${org.apache.commons.commons-codec.version}</version>
-            </dependency>
-
-
-            <!-- Jackson -->
-            <dependency>
-                <groupId>com.fasterxml.jackson.core</groupId>
-                <artifactId>jackson-core</artifactId>
-                <version>${com.fasterxml.jackson.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>com.fasterxml.jackson.core</groupId>
-                <artifactId>jackson-databind</artifactId>
-                <version>${com.fasterxml.jackson-databind.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>com.fasterxml.jackson.dataformat</groupId>
-                <artifactId>jackson-dataformat-yaml</artifactId>
-                <version>${com.fasterxml.jackson.version}</version>
             </dependency>
 
             <!-- Logs -->
@@ -195,23 +153,6 @@
                     <artifactId>exec-maven-plugin</artifactId>
                     <version>${exec-maven-plugin.version}</version>
                 </plugin>
-                <!--
-                <plugin>
-                    <groupId>org.owasp</groupId>
-                    <artifactId>dependency-check-maven</artifactId>
-                    <version>${org.owasp.dependency-check-maven.version}</version>
-                    <configuration>
-                        <failBuildOnCVSS>8</failBuildOnCVSS>
-                    </configuration>
-                    <executions>
-                        <execution>
-                            <goals>
-                                <goal>check</goal>
-                            </goals>
-                        </execution>
-                    </executions>
-                </plugin>
-                -->
             </plugins>
         </pluginManagement>
 
@@ -220,12 +161,6 @@
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-compiler-plugin</artifactId>
             </plugin>
-            <!--
-            <plugin>
-                <groupId>org.owasp</groupId>
-                <artifactId>dependency-check-maven</artifactId>
-            </plugin>
-            -->
         </plugins>
     </build>
 </project>
