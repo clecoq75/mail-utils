@@ -83,7 +83,7 @@ public final class MessageFingerPrint {
 
     private static void feedWithSubject(ByteArrayOutputStream baos, String subject) {
         if (subject!=null) {
-            byte[] buffer = subject.getBytes(StandardCharsets.UTF_8);
+            byte[] buffer = subject.trim().toLowerCase().getBytes(StandardCharsets.UTF_8);
             baos.write(buffer, 0, buffer.length);
         }
 

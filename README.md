@@ -5,3 +5,5 @@
 [![Reliability](https://sonarcloud.io/api/project_badges/measure?project=cle.nlp:semantic-annotator&metric=reliability_rating)](https://sonarcloud.io/dashboard?id=cle.nlp%3Asemantic-annotator)
 [![Security](https://sonarcloud.io/api/project_badges/measure?project=cle.nlp:semantic-annotator&metric=security_rating)](https://sonarcloud.io/dashboard?id=cle.nlp%3Asemantic-annotator)
 [![Vulnerabilities](https://sonarcloud.io/api/project_badges/measure?project=cle.nlp:semantic-annotator&metric=vulnerabilities)](https://sonarcloud.io/dashboard?id=cle.nlp%3Asemantic-annotator)
+
+Various tools for email manipulation
