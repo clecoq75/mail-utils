@@ -44,7 +44,7 @@ public final class AddressUtils {
     public static boolean equals(Address[] address1, Address[] address2, boolean checkPersonal) {
         address1 = address1==null? new Address[0] : address1;
         address2 = address2==null? new Address[0] : address2;
-        boolean seen[] = new boolean[address2.length];
+        boolean[] seen = new boolean[address2.length];
 
         // Initialize the "seen" arrays (null values are considered as "seen"
         // because we don't take them into account.
@@ -54,10 +54,8 @@ public final class AddressUtils {
 
         // Check that all values of address11 are contained in address2
         for (int i=0; i<address1.length; i++) {
-            if (address1[i]!=null) {
-                if (!searchAndMarkAsSeen(address1[i], address2, seen, checkPersonal)) {
-                    return false;
-                }
+            if (address1[i]!=null && !searchAndMarkAsSeen(address1[i], address2, seen, checkPersonal)) {
+                return false;
             }
         }
 

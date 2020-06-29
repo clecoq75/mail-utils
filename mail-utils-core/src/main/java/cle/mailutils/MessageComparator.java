@@ -9,6 +9,8 @@ import java.util.Date;
 import java.util.Objects;
 import java.util.Properties;
 
+import static javax.mail.Message.RecipientType.*;
+
 public class MessageComparator {
     private boolean checkPersonals = false;
     private boolean checkTO = true;
@@ -78,13 +80,13 @@ public class MessageComparator {
     }
 
     boolean recipientsAreEquals(MimeMessage message1, MimeMessage message2) throws MessagingException {
-        if (checkTO && recipientsAreNotEquals(message1, message2, MimeMessage.RecipientType.TO)) {
+        if (checkTO && recipientsAreNotEquals(message1, message2, TO)) {
             return false;
         }
-        if (checkCC && recipientsAreNotEquals(message1, message2, MimeMessage.RecipientType.CC)) {
+        if (checkCC && recipientsAreNotEquals(message1, message2, CC)) {
             return false;
         }
-        return !checkBCC || !recipientsAreNotEquals(message1, message2, MimeMessage.RecipientType.BCC);
+        return !checkBCC || !recipientsAreNotEquals(message1, message2, BCC);
     }
 
     private boolean recipientsAreNotEquals(MimeMessage message1, MimeMessage message2, javax.mail.Message.RecipientType type) throws MessagingException {
