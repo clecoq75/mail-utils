@@ -61,6 +61,9 @@ public class MessageFingerPrintTest {
         m2 = createMessages(false, "no subject", new String[] {"b@a"}, new String[] {"c@c"}, null, null, d, null);
         assertNotEquals(mf.getFingerPrint(m1), mf.getFingerPrint(m2));
 
+        mf.setUseFrom(false);
+        assertEquals(mf.getFingerPrint(m1), mf.getFingerPrint(m2));
+
         m2 = createMessages(true, "no subject", new String[] {"a@a"}, new String[] {"c@c"}, null, null, d, null);
         assertEquals(mf.getFingerPrint(m1), mf.getFingerPrint(m2));
     }
@@ -209,6 +212,22 @@ public class MessageFingerPrintTest {
 
         when(m2.getHeader("H2")).thenReturn(new String[] { "vh3" });
         assertNotEquals(mf1.getFingerPrint(m1), mf2.getFingerPrint(m2));
+    }
+
+    @Test
+    public void testFingerPrintForAdditionalHeadersWithNull() throws MessagingException {
+        MessageFingerPrint mf1 = new MessageFingerPrint();
+
+        Date d = new Date();
+        MimeMessage m1 = createMessages(true, "Subject 1", new String[] {"a@a"}, new String[] {"c@c","d@d"}, null, null, d, null);
+        MimeMessage m2 = createMessages(true, "Subject 1", new String[] {"a@a"}, new String[] {"c@c","d@d"}, null, null, d, null);
+
+        mf1.addAdditionalHeader("H1");
+        assertEquals(mf1.getFingerPrint(m1), mf1.getFingerPrint(m2));
+
+        when(m1.getHeader("H1")).thenReturn(new String[] { "vh1", null, "vh2" });
+        when(m2.getHeader("H1")).thenReturn(new String[] { "vh2", "vh1", null, null });
+        assertEquals(mf1.getFingerPrint(m1), mf1.getFingerPrint(m2));
     }
 
     @Test
