@@ -29,10 +29,6 @@ public final class MessageFingerPrint {
     private boolean useSubject = true;
     private final Set<String> additionalHeaders = new TreeSet<>(String::compareToIgnoreCase);
 
-    public MessageFingerPrint() {
-
-    }
-
     public boolean isUseSentDate() {
         return useSentDate;
     }
