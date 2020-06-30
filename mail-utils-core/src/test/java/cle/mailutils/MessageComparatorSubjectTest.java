@@ -38,7 +38,6 @@ public class MessageComparatorSubjectTest {
     @Test
     public void testSameSubjects() throws MessagingException {
         MessageComparator messageComparator = new MessageComparator();
-        long current = System.currentTimeMillis();
         MimeMessage[] messages = createMessages("123","123");
         assertTrue(messageComparator.subjectAreEquals(messages[0], messages[1]));
         assertTrue(messageComparator.subjectAreEquals(messages[1], messages[0]));

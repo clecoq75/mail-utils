@@ -53,15 +53,15 @@ public final class AddressUtils {
         }
 
         // Check that all values of address11 are contained in address2
-        for (int i=0; i<address1.length; i++) {
-            if (address1[i]!=null && !searchAndMarkAsSeen(address1[i], address2, seen, checkPersonal)) {
+        for (Address address : address1) {
+            if (address != null && !searchAndMarkAsSeen(address, address2, seen, checkPersonal)) {
                 return false;
             }
         }
 
         // Check that all entries of address2 are contained in address1
-        for (int i=0; i<seen.length; i++) {
-            if (!seen[i]) {
+        for (boolean b : seen) {
+            if (!b) {
                 return false;
             }
         }
