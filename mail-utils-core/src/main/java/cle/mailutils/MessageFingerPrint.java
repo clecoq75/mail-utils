@@ -20,7 +20,7 @@ public final class MessageFingerPrint {
     private static final byte[] addresses_separator = ",".getBytes(StandardCharsets.UTF_8);
     private static final byte[] header_values_separator = "~ù~".getBytes(StandardCharsets.UTF_8);
 
-    private boolean useSendDate = true;
+    private boolean useSentDate = true;
     private boolean useReceivedDate = false;
     private boolean useFrom = true;
     private boolean useTo = true;
@@ -33,12 +33,12 @@ public final class MessageFingerPrint {
 
     }
 
-    public boolean isUseSendDate() {
-        return useSendDate;
+    public boolean isUseSentDate() {
+        return useSentDate;
     }
 
-    public void setUseSendDate(boolean useSendDate) {
-        this.useSendDate = useSendDate;
+    public void setUseSentDate(boolean useSentDate) {
+        this.useSentDate = useSentDate;
     }
 
     public boolean isUseReceivedDate() {
@@ -108,7 +108,7 @@ public final class MessageFingerPrint {
 
     public String getFingerPrint(MimeMessage message1) throws MessagingException {
         ByteArrayOutputStream output = new ByteArrayOutputStream();
-        if (useSendDate) {
+        if (useSentDate) {
             feedWithDate(output, message1.getSentDate());
         }
         if (useReceivedDate) {

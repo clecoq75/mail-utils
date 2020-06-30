@@ -75,6 +75,9 @@ public class MessageFingerPrintTest {
 
         m2 = createMessages(true, "no subject", new String[] {"a@a"}, new String[] {"d@d"}, null, null, d, null);
         assertNotEquals(mf.getFingerPrint(m1), mf.getFingerPrint(m2));
+
+        mf.setUseTo(false);
+        assertEquals(mf.getFingerPrint(m1), mf.getFingerPrint(m2));
     }
 
     @Test
@@ -87,6 +90,9 @@ public class MessageFingerPrintTest {
 
         m2 = createMessages(true, "no subject", new String[] {"a@a"}, new String[] {"c@c","d@d"}, new String[] {"f@f"}, null, d, null);
         assertNotEquals(mf.getFingerPrint(m1), mf.getFingerPrint(m2));
+
+        mf.setUseCc(false);
+        assertEquals(mf.getFingerPrint(m1), mf.getFingerPrint(m2));
     }
 
     @Test
@@ -126,6 +132,9 @@ public class MessageFingerPrintTest {
         Date d2 = new Date(System.currentTimeMillis()+60000L);
         m2 = createMessages(true, "no subject", new String[] {"a@a"}, new String[] {"c@c","d@d"}, new String[] {"F@F","e@e"}, null, d2, null);
         assertNotEquals(mf.getFingerPrint(m1), mf.getFingerPrint(m2));
+
+        mf.setUseSentDate(false);
+        assertEquals(mf.getFingerPrint(m1), mf.getFingerPrint(m2));
     }
 
     @Test
@@ -160,6 +169,9 @@ public class MessageFingerPrintTest {
 
         m2 = createMessages(true, "Subject 2", new String[] {"a@a"}, new String[] {"c@c","d@d"}, new String[] {"F@F","e@e"}, null, d, null);
         assertNotEquals(mf.getFingerPrint(m1), mf.getFingerPrint(m2));
+
+        mf.setUseSubject(false);
+        assertEquals(mf.getFingerPrint(m1), mf.getFingerPrint(m2));
     }
 
     @Test
