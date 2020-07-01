@@ -12,127 +12,67 @@ import java.io.ByteArrayOutputStream;
 import java.io.InputStream;
 import java.nio.ByteBuffer;
 import java.nio.charset.StandardCharsets;
-import java.util.*;
+import java.util.Date;
+import java.util.Properties;
+import java.util.Set;
+import java.util.TreeSet;
 
 public final class MessageFingerPrint {
 
     private static final byte[] separator = "¤".getBytes(StandardCharsets.UTF_8);
     private static final byte[] addresses_separator = ",".getBytes(StandardCharsets.UTF_8);
     private static final byte[] header_values_separator = "~ù~".getBytes(StandardCharsets.UTF_8);
+    private static final MessageComparisonRules default_rules = new MessageComparisonRules();
 
-    private boolean useSentDate = true;
-    private boolean useReceivedDate = false;
-    private boolean useFrom = true;
-    private boolean useTo = true;
-    private boolean useCc = true;
-    private boolean useBcc = false;
-    private boolean useSubject = true;
-    private final Set<String> additionalHeaders = new TreeSet<>(String::compareToIgnoreCase);
-
-    public boolean isUseSentDate() {
-        return useSentDate;
+    private MessageFingerPrint() {
+        throw new IllegalStateException("Utility class");
     }
 
-    public void setUseSentDate(boolean useSentDate) {
-        this.useSentDate = useSentDate;
+    public static String getFingerPrint(InputStream inputStream) throws MessagingException {
+        return getFingerPrint(null, inputStream);
     }
 
-    public boolean isUseReceivedDate() {
-        return useReceivedDate;
-    }
-
-    public void setUseReceivedDate(boolean useReceivedDate) {
-        this.useReceivedDate = useReceivedDate;
-    }
-
-    public boolean isUseFrom() {
-        return useFrom;
-    }
-
-    public void setUseFrom(boolean useFrom) {
-        this.useFrom = useFrom;
-    }
-
-    public boolean isUseTo() {
-        return useTo;
-    }
-
-    public void setUseTo(boolean useTo) {
-        this.useTo = useTo;
-    }
-
-    public boolean isUseCc() {
-        return useCc;
-    }
-
-    public void setUseCc(boolean useCc) {
-        this.useCc = useCc;
-    }
-
-    public boolean isUseBcc() {
-        return useBcc;
-    }
-
-    public void setUseBcc(boolean useBcc) {
-        this.useBcc = useBcc;
-    }
-
-    public boolean isUseSubject() {
-        return useSubject;
-    }
-
-    public void setUseSubject(boolean useSubject) {
-        this.useSubject = useSubject;
-    }
-
-    public void addAdditionalHeader(String header) {
-        additionalHeaders.add(header);
-    }
-
-    public void removeAdditionalHeader(String header) {
-        additionalHeaders.remove(header);
-    }
-
-    public Set<String> getAdditionalHeaders() {
-        return Collections.unmodifiableSet(additionalHeaders);
-    }
-
-    public String getFingerPrint(InputStream inputStream) throws MessagingException {
+    public static String getFingerPrint(MessageComparisonRules messageComparisonRules, InputStream inputStream) throws MessagingException {
         Session s = Session.getInstance(new Properties());
-        return getFingerPrint(new MimeMessage(s, inputStream));
+        return getFingerPrint(messageComparisonRules, new MimeMessage(s, inputStream));
     }
 
-    public String getFingerPrint(MimeMessage message1) throws MessagingException {
+    public static String getFingerPrint(MimeMessage message1) throws MessagingException {
+        return getFingerPrint(null, message1);
+    }
+
+    public static String getFingerPrint(MessageComparisonRules messageComparisonRules, MimeMessage message1) throws MessagingException {
+        MessageComparisonRules rules = messageComparisonRules!=null? messageComparisonRules : default_rules;
         ByteArrayOutputStream output = new ByteArrayOutputStream();
-        if (useSentDate) {
+        if (rules.useSentDate()) {
             feedWithDate(output, message1.getSentDate());
         }
-        if (useReceivedDate) {
+        if (rules.useReceivedDate()) {
             feedWithDate(output, message1.getReceivedDate());
         }
-        if (useFrom) {
+        if (rules.useFrom()) {
             feedWithAddresses(output, message1.getFrom());
         }
-        if (useTo) {
+        if (rules.useTo()) {
             feedWithAddresses(output, message1.getRecipients(Message.RecipientType.TO));
         }
-        if (useCc) {
+        if (rules.useCc()) {
             feedWithAddresses(output, message1.getRecipients(Message.RecipientType.CC));
         }
-        if (useBcc) {
+        if (rules.useBcc()) {
             feedWithAddresses(output, message1.getRecipients(Message.RecipientType.BCC));
         }
-        if (useSubject) {
+        if (rules.useSubject()) {
             feedWithSubject(output, message1.getSubject());
         }
-        for (String header : additionalHeaders) {
+        for (String header : rules.getAdditionalHeaders()) {
             feedWithStrings(output, message1.getHeader(header));
         }
 
         return DigestUtils.md5Hex(output.toByteArray());
     }
 
-    private void feedWithDate(ByteArrayOutputStream baos, Date date) {
+    private static void feedWithDate(ByteArrayOutputStream baos, Date date) {
         if (date!=null) {
             byte[] dateToBytes = ByteBuffer.allocate(8).putLong(date.getTime()).array();
             baos.write(dateToBytes, 0, dateToBytes.length);
@@ -141,7 +81,7 @@ public final class MessageFingerPrint {
         feedWithSeparator(baos);
     }
 
-    private void feedWithAddresses(ByteArrayOutputStream baos, Address[] list) {
+    private static void feedWithAddresses(ByteArrayOutputStream baos, Address[] list) {
         if (list!=null && list.length>0) {
             Set<String> addresses = new TreeSet<>(String::compareTo);
             for (Address address : list) {
@@ -161,11 +101,11 @@ public final class MessageFingerPrint {
         feedWithSeparator(baos);
     }
 
-    private void feedWithSeparator(ByteArrayOutputStream baos) {
+    private static void feedWithSeparator(ByteArrayOutputStream baos) {
         baos.write(separator, 0, separator.length);
     }
 
-    private void feedWithSubject(ByteArrayOutputStream baos, String subject) {
+    private static void feedWithSubject(ByteArrayOutputStream baos, String subject) {
         if (subject!=null) {
             byte[] buffer = subject.trim().toLowerCase().getBytes(StandardCharsets.UTF_8);
             baos.write(buffer, 0, buffer.length);
@@ -174,7 +114,7 @@ public final class MessageFingerPrint {
         feedWithSeparator(baos);
     }
 
-    private void feedWithStrings(ByteArrayOutputStream baos, String[] values) {
+    private static void feedWithStrings(ByteArrayOutputStream baos, String[] values) {
         if (values!=null) {
             Set<String> list = new TreeSet<>(String::compareTo);
             for (String value : values) {
