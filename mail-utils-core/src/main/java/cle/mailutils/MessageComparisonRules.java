@@ -11,6 +11,7 @@ public class MessageComparisonRules {
     private boolean useTo = true;
     private boolean useCc = true;
     private boolean useBcc = false;
+    private boolean usePersonals = false;
     private boolean useSubject = true;
     private final Set<String> additionalHeaders = new TreeSet<>(String::compareToIgnoreCase);
 
@@ -60,6 +61,14 @@ public class MessageComparisonRules {
 
     public void setUseBcc(boolean useBcc) {
         this.useBcc = useBcc;
+    }
+
+    public boolean usePersonals() {
+        return usePersonals;
+    }
+
+    public void setUsePersonals(boolean usePersonals) {
+        this.usePersonals = usePersonals;
     }
 
     public boolean useSubject() {

@@ -74,7 +74,7 @@ public class MessageFingerPrintTest {
     public void testFingerPrintWithForTo() throws MessagingException {
         Date d = new Date();
         MimeMessage m1 = createMessages(true, "no subject", new String[] {"a@a"}, new String[] {"c@c","d@d"}, null, null, d, null);
-        MimeMessage m2 = createMessages(true, "no subject", new String[] {"a@a"}, new String[] {"D@D","c@c"}, null, null, d, null);
+        MimeMessage m2 = createMessages(true, "no subject", new String[] {"a@a"}, new String[] {"d@d","c@c"}, null, null, d, null);
         assertEquals(getFingerPrint(m1), getFingerPrint(m2));
 
         m2 = createMessages(true, "no subject", new String[] {"a@a"}, new String[] {"d@d"}, null, null, d, null);
@@ -89,7 +89,7 @@ public class MessageFingerPrintTest {
     public void testFingerPrintWithForCc() throws MessagingException {
         Date d = new Date();
         MimeMessage m1 = createMessages(true, "no subject", new String[] {"a@a"}, new String[] {"c@c","d@d"}, new String[] {"e@e","f@f"}, null, d, null);
-        MimeMessage m2 = createMessages(true, "no subject", new String[] {"a@a"}, new String[] {"c@c","d@d"}, new String[] {"F@F","e@e"}, null, d, null);
+        MimeMessage m2 = createMessages(true, "no subject", new String[] {"a@a"}, new String[] {"c@c","d@d"}, new String[] {"f@f","e@e"}, null, d, null);
         assertEquals(getFingerPrint(m1), getFingerPrint(m2));
 
         m2 = createMessages(true, "no subject", new String[] {"a@a"}, new String[] {"c@c","d@d"}, new String[] {"f@f"}, null, d, null);
@@ -98,6 +98,67 @@ public class MessageFingerPrintTest {
         MessageComparisonRules r = new MessageComparisonRules();
         r.setUseCc(false);
         assertEquals(getFingerPrint(r, m1), getFingerPrint(r, m2));
+    }
+
+    @Test
+    public void testFingerPrintWithPersonalsOnFrom() throws MessagingException {
+        testFingerPrintWithPersonals(null);
+    }
+
+    @Test
+    public void testFingerPrintWithPersonalsOnTo() throws MessagingException {
+        testFingerPrintWithPersonals(Message.RecipientType.TO);
+    }
+
+    @Test
+    public void testFingerPrintWithPersonalsOnCc() throws MessagingException {
+        testFingerPrintWithPersonals(Message.RecipientType.CC);
+    }
+
+    @Test
+    public void testFingerPrintWithPersonalsOnBcc() throws MessagingException {
+        testFingerPrintWithPersonals(Message.RecipientType.BCC);
+    }
+
+    public void testFingerPrintWithPersonals(Message.RecipientType type) throws MessagingException {
+        MimeMessage m1 = createMessage("a@a", "Albert", type);
+        MimeMessage m2 = createMessage("a@a", "Albert", type);
+
+        MessageComparisonRules r = new MessageComparisonRules();
+        if (type==Message.RecipientType.BCC) {
+            r.setUseBcc(true);
+        }
+
+        assertEquals(getFingerPrint(r, m1), getFingerPrint(r, m2));
+
+        r.setUsePersonals(true);
+        assertEquals(getFingerPrint(r, m1), getFingerPrint(r, m2));
+
+        m2 = createMessage("a@a", null, type);
+        assertNotEquals(getFingerPrint(r, m1), getFingerPrint(r, m2));
+
+        m2 = createMessage("a@a", "Bill", type);
+        assertNotEquals(getFingerPrint(r, m1), getFingerPrint(r, m2));
+
+        m2 = createMessage("a@a", "ALBERT", type);
+        assertNotEquals(getFingerPrint(r, m1), getFingerPrint(r, m2));
+
+        r.setUsePersonals(false);
+        assertEquals(getFingerPrint(r, m1), getFingerPrint(r, m2));
+    }
+
+    private MimeMessage createMessage(String address, String personal, Message.RecipientType type) throws MessagingException {
+        MimeMessage m = mock(MimeMessage.class);
+        InternetAddress a = mock(InternetAddress.class);
+        when(a.getAddress()).thenReturn(address);
+        when(a.getPersonal()).thenReturn(personal);
+        if (type==null) {
+            when(m.getFrom()).thenReturn(new Address[] { a });
+        }
+        else {
+            when(m.getRecipients(type)).thenReturn(new Address[] { a });
+        }
+        return m;
     }
 
     @Test
@@ -117,8 +178,8 @@ public class MessageFingerPrintTest {
 
     @Test
     public void testWithDisorderedFromAddresses() throws MessagingException {
-        MimeMessage m1 = createMessages("a@a","B@B","c@c");
-        MimeMessage m2 = createMessages("c@C","b@b","a@a");
+        MimeMessage m1 = createMessages("a@a","b@b","c@c");
+        MimeMessage m2 = createMessages("c@c","b@b","a@a");
         assertEquals(getFingerPrint(m1), getFingerPrint(m2));
 
         m2 = createMessages("c@C","b@b","a@a","d@d");
@@ -129,11 +190,11 @@ public class MessageFingerPrintTest {
     public void testFingerPrintForDate() throws MessagingException {
         Date d1 = new Date();
         MimeMessage m1 = createMessages(true, "no subject", new String[] {"a@a"}, new String[] {"c@c","d@d"}, new String[] {"e@e","f@f"}, null, d1, null);
-        MimeMessage m2 = createMessages(true, "no subject", new String[] {"a@a"}, new String[] {"c@c","d@d"}, new String[] {"F@F","e@e"}, null, d1, null);
+        MimeMessage m2 = createMessages(true, "no subject", new String[] {"a@a"}, new String[] {"c@c","d@d"}, new String[] {"e@e","f@f"}, null, d1, null);
         assertEquals(getFingerPrint(m1), getFingerPrint(m2));
 
         Date d2 = new Date(System.currentTimeMillis()+60000L);
-        m2 = createMessages(true, "no subject", new String[] {"a@a"}, new String[] {"c@c","d@d"}, new String[] {"F@F","e@e"}, null, d2, null);
+        m2 = createMessages(true, "no subject", new String[] {"a@a"}, new String[] {"c@c","d@d"}, new String[] {"e@e","f@f"}, null, d2, null);
         assertNotEquals(getFingerPrint(m1), getFingerPrint(m2));
 
         MessageComparisonRules r = new MessageComparisonRules();
@@ -161,16 +222,16 @@ public class MessageFingerPrintTest {
     public void testFingerPrintWithForSubject() throws MessagingException {
         Date d = new Date();
         MimeMessage m1 = createMessages(true, "Subject 1", new String[] {"a@a"}, new String[] {"c@c","d@d"}, new String[] {"e@e","f@f"}, null, d, null);
-        MimeMessage m2 = createMessages(true, "Subject 1", new String[] {"a@a"}, new String[] {"c@c","d@d"}, new String[] {"F@F","e@e"}, null, d, null);
+        MimeMessage m2 = createMessages(true, "Subject 1", new String[] {"a@a"}, new String[] {"c@c","d@d"}, new String[] {"e@e","f@f"}, null, d, null);
         assertEquals(getFingerPrint(m1), getFingerPrint(m2));
 
-        m2 = createMessages(true, "SUBJECT 1", new String[] {"a@a"}, new String[] {"c@c","d@d"}, new String[] {"F@F","e@e"}, null, d, null);
+        m2 = createMessages(true, "SUBJECT 1", new String[] {"a@a"}, new String[] {"c@c","d@d"}, new String[] {"e@e","f@f"}, null, d, null);
         assertEquals(getFingerPrint(m1), getFingerPrint(m2));
 
-        m2 = createMessages(true, " SUBJECT 1 ", new String[] {"a@a"}, new String[] {"c@c","d@d"}, new String[] {"F@F","e@e"}, null, d, null);
+        m2 = createMessages(true, " SUBJECT 1 ", new String[] {"a@a"}, new String[] {"c@c","d@d"}, new String[] {"e@e","f@f"}, null, d, null);
         assertEquals(getFingerPrint(m1), getFingerPrint(m2));
 
-        m2 = createMessages(true, "Subject 2", new String[] {"a@a"}, new String[] {"c@c","d@d"}, new String[] {"F@F","e@e"}, null, d, null);
+        m2 = createMessages(true, "Subject 2", new String[] {"a@a"}, new String[] {"c@c","d@d"}, new String[] {"e@e","f@f"}, null, d, null);
         assertNotEquals(getFingerPrint(m1), getFingerPrint(m2));
 
         MessageComparisonRules r = new MessageComparisonRules();

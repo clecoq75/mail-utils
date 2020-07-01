@@ -8,39 +8,46 @@ import javax.mail.internet.MimeMessage;
 import java.util.Arrays;
 import java.util.Properties;
 
+import static cle.mailutils.MessageComparator.subjectAreEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 
 public class MessageComparatorSubjectTest {
     @Test
     public void testBothSubjectsAreNUll() throws MessagingException {
-        MessageComparator messageComparator = new MessageComparator();
         MimeMessage[] messages = createMessages(null,null);
-        assertTrue(messageComparator.subjectAreEquals(messages[0], messages[1]));
+        assertTrue(subjectAreEquals(new MessageComparisonRules(), messages[0], messages[1]));
     }
 
     @Test
     public void testOneSubjectIsNUll() throws MessagingException {
-        MessageComparator messageComparator = new MessageComparator();
         MimeMessage[] messages = createMessages("1234",null);
-        assertFalse(messageComparator.subjectAreEquals(messages[0], messages[1]));
-        assertFalse(messageComparator.subjectAreEquals(messages[1], messages[0]));
+        assertFalse(subjectAreEquals(new MessageComparisonRules(), messages[0], messages[1]));
+        assertFalse(subjectAreEquals(new MessageComparisonRules(), messages[1], messages[0]));
+
+        MessageComparisonRules r = new MessageComparisonRules();
+        r.setUseSubject(false);
+        assertTrue(subjectAreEquals(r, messages[0], messages[1]));
+        assertTrue(subjectAreEquals(r, messages[1], messages[0]));
     }
 
     @Test
     public void testDifferentSubjects() throws MessagingException {
-        MessageComparator messageComparator = new MessageComparator();
         MimeMessage[] messages = createMessages("1234", "4567");
-        assertFalse(messageComparator.subjectAreEquals(messages[0], messages[1]));
-        assertFalse(messageComparator.subjectAreEquals(messages[1], messages[0]));
+        assertFalse(subjectAreEquals(new MessageComparisonRules(), messages[0], messages[1]));
+        assertFalse(subjectAreEquals(new MessageComparisonRules(), messages[1], messages[0]));
+
+        MessageComparisonRules r = new MessageComparisonRules();
+        r.setUseSubject(false);
+        assertTrue(subjectAreEquals(r, messages[0], messages[1]));
+        assertTrue(subjectAreEquals(r, messages[1], messages[0]));
     }
 
     @Test
     public void testSameSubjects() throws MessagingException {
-        MessageComparator messageComparator = new MessageComparator();
         MimeMessage[] messages = createMessages("123","123");
-        assertTrue(messageComparator.subjectAreEquals(messages[0], messages[1]));
-        assertTrue(messageComparator.subjectAreEquals(messages[1], messages[0]));
+        assertTrue(subjectAreEquals(new MessageComparisonRules(), messages[0], messages[1]));
+        assertTrue(subjectAreEquals(new MessageComparisonRules(), messages[1], messages[0]));
     }
 
     public MimeMessage[] createMessages(String s1, String s2) throws MessagingException {

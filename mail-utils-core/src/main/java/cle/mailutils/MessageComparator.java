@@ -8,90 +8,91 @@ import java.io.InputStream;
 import java.util.Date;
 import java.util.Objects;
 import java.util.Properties;
+import java.util.Set;
 
+import static cle.mailutils.HeaderUtils.toSet;
 import static javax.mail.Message.RecipientType.*;
 
-public class MessageComparator {
-    private boolean checkPersonals = false;
-    private boolean checkTO = true;
-    private boolean checkCC = true;
-    private boolean checkBCC = false;
+public final class MessageComparator {
 
-    public boolean isCheckPersonals() {
-        return checkPersonals;
+    private static final MessageComparisonRules default_rules = new MessageComparisonRules();
+
+    private MessageComparator() {
+        throw new IllegalStateException("Utility class");
     }
 
-    public void setCheckPersonals(boolean checkPersonals) {
-        this.checkPersonals = checkPersonals;
+    public static boolean isSame(InputStream inputStream1, InputStream inputStream2) throws MessagingException {
+        return isSame(null, inputStream1, inputStream2);
     }
 
-    public boolean isCheckTO() {
-        return checkTO;
-    }
-
-    public void setCheckTO(boolean checkTO) {
-        this.checkTO = checkTO;
-    }
-
-    public boolean isCheckCC() {
-        return checkCC;
-    }
-
-    public void setCheckCC(boolean checkCC) {
-        this.checkCC = checkCC;
-    }
-
-    public boolean isCheckBCC() {
-        return checkBCC;
-    }
-
-    public void setCheckBCC(boolean checkBCC) {
-        this.checkBCC = checkBCC;
-    }
-
-    public boolean isSame(InputStream inputStream1, InputStream inputStream2) throws MessagingException {
+    public static boolean isSame(MessageComparisonRules rules, InputStream inputStream1, InputStream inputStream2) throws MessagingException {
         Session s = Session.getInstance(new Properties());
-        return isSame(new MimeMessage(s, inputStream1), new MimeMessage(s, inputStream2));
+        return isSame(rules, new MimeMessage(s, inputStream1), new MimeMessage(s, inputStream2));
     }
 
-    public boolean isSame(MimeMessage message1, MimeMessage message2) throws MessagingException {
-        return sentDatesAreEquals(message1, message2)
-                && fromAreEquals(message1, message2)
-                && recipientsAreEquals(message1, message2)
-                && subjectAreEquals(message1, message2);
+    public static boolean isSame(MimeMessage message1, MimeMessage message2) throws MessagingException {
+        return isSame(null, message1, message2);
     }
 
-    boolean subjectAreEquals(MimeMessage message1, MimeMessage message2) throws MessagingException {
+    public static boolean isSame(MessageComparisonRules messageComparisonRules, MimeMessage message1, MimeMessage message2) throws MessagingException {
+        MessageComparisonRules rules = messageComparisonRules!=null? messageComparisonRules : default_rules;
+        return sentDatesAreEquals(rules, message1, message2)
+                && receivedDatesAreEquals(rules, message1, message2)
+                && fromAreEquals(rules, message1, message2)
+                && recipientsAreEquals(rules, message1, message2)
+                && subjectAreEquals(rules, message1, message2)
+                && additionalHeadersAreEquals(rules, message1, message2);
+    }
+
+    static boolean additionalHeadersAreEquals(MessageComparisonRules rules, MimeMessage message1, MimeMessage message2) throws MessagingException {
+        for (String header : rules.getAdditionalHeaders()) {
+            Set<String> v1 = toSet(message1.getHeader(header));
+            Set<String> v2 = toSet(message2.getHeader(header));
+            if (!v1.equals(v2)) {
+                return false;
+            }
+        }
+
+        return true;
+    }
+
+    static boolean subjectAreEquals(MessageComparisonRules rules, MimeMessage message1, MimeMessage message2) throws MessagingException {
         String s1 = message1.getSubject();
         String s2 = message2.getSubject();
-        return Objects.equals(s1, s2);
+        return !rules.useSubject() || Objects.equals(s1, s2);
     }
 
-    boolean sentDatesAreEquals(MimeMessage message1, MimeMessage message2) throws MessagingException {
+    static boolean sentDatesAreEquals(MessageComparisonRules rules, MimeMessage message1, MimeMessage message2) throws MessagingException {
         Date date1 = message1.getSentDate();
         Date date2 = message2.getSentDate();
-        return Objects.equals(date1, date2);
+        return !rules.useSentDate() || Objects.equals(date1, date2);
     }
 
-    boolean fromAreEquals(MimeMessage message1, MimeMessage message2) throws MessagingException {
+    static boolean receivedDatesAreEquals(MessageComparisonRules rules, MimeMessage message1, MimeMessage message2) throws MessagingException {
+        Date date1 = message1.getReceivedDate();
+        Date date2 = message2.getReceivedDate();
+        return !rules.useReceivedDate() || Objects.equals(date1, date2);
+    }
+
+    static boolean fromAreEquals(MessageComparisonRules rules, MimeMessage message1, MimeMessage message2) throws MessagingException {
         Address[] recipients1 = message1.getFrom();
         Address[] recipients2 = message2.getFrom();
-        return AddressUtils.equals(recipients1, recipients2, checkPersonals);
+        return !rules.useFrom() || AddressUtils.equals(recipients1, recipients2, rules.usePersonals());
     }
 
-    boolean recipientsAreEquals(MimeMessage message1, MimeMessage message2) throws MessagingException {
-        if (checkTO && recipientsAreNotEquals(message1, message2, TO)) {
+    static boolean recipientsAreEquals(MessageComparisonRules rules, MimeMessage message1, MimeMessage message2) throws MessagingException {
+        if (rules.useTo() && recipientsAreNotEquals(rules, message1, message2, TO)) {
             return false;
         }
-        if (checkCC && recipientsAreNotEquals(message1, message2, CC)) {
+        if (rules.useCc() && recipientsAreNotEquals(rules, message1, message2, CC)) {
             return false;
         }
-        return !checkBCC || !recipientsAreNotEquals(message1, message2, BCC);
+        return !rules.useBcc() || !recipientsAreNotEquals(rules, message1, message2, BCC);
     }
 
-    private boolean recipientsAreNotEquals(MimeMessage message1, MimeMessage message2, javax.mail.Message.RecipientType type) throws MessagingException {
+    static private boolean recipientsAreNotEquals(MessageComparisonRules rules, MimeMessage message1, MimeMessage message2, javax.mail.Message.RecipientType type) throws MessagingException {
         Address[] recipients1 = message1.getRecipients(type);
         Address[] recipients2 = message2.getRecipients(type);
-        return !AddressUtils.equals(recipients1, recipients2, checkPersonals);
+        return !AddressUtils.equals(recipients1, recipients2, rules.usePersonals());
     }
 }

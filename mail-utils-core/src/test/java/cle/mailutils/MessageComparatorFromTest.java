@@ -12,8 +12,10 @@ import java.io.UnsupportedEncodingException;
 import java.util.Arrays;
 import java.util.Properties;
 
+import static cle.mailutils.MessageComparator.fromAreEquals;
 import static cle.mailutils.TestUtils.createAddress;
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
 
 @RunWith(Parameterized.class)
 public class MessageComparatorFromTest {
@@ -69,9 +71,14 @@ public class MessageComparatorFromTest {
 
     @Test
     public void test() throws MessagingException {
-        MessageComparator messageComparator = new MessageComparator();
-        messageComparator.setCheckPersonals(checkPersonals);
-        assertEquals(expected, messageComparator.fromAreEquals(message1, message2));
+        MessageComparisonRules r = new MessageComparisonRules();
+        r.setUsePersonals(checkPersonals);
+        assertEquals(expected, fromAreEquals(r, message1, message2));
+
+        if (!expected) {
+            r.setUseFrom(false);
+            assertTrue(fromAreEquals(r, message1, message2));
+        }
     }
 
     public MimeMessage createMessages(String displayName1, String email1) throws MessagingException, UnsupportedEncodingException {

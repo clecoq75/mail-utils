@@ -17,6 +17,8 @@ import java.util.Properties;
 import java.util.Set;
 import java.util.TreeSet;
 
+import static cle.mailutils.HeaderUtils.toSet;
+
 public final class MessageFingerPrint {
 
     private static final byte[] separator = "¤".getBytes(StandardCharsets.UTF_8);
@@ -51,16 +53,16 @@ public final class MessageFingerPrint {
             feedWithDate(output, message1.getReceivedDate());
         }
         if (rules.useFrom()) {
-            feedWithAddresses(output, message1.getFrom());
+            feedWithAddresses(output, message1.getFrom(), rules.usePersonals());
         }
         if (rules.useTo()) {
-            feedWithAddresses(output, message1.getRecipients(Message.RecipientType.TO));
+            feedWithAddresses(output, message1.getRecipients(Message.RecipientType.TO), rules.usePersonals());
         }
         if (rules.useCc()) {
-            feedWithAddresses(output, message1.getRecipients(Message.RecipientType.CC));
+            feedWithAddresses(output, message1.getRecipients(Message.RecipientType.CC), rules.usePersonals());
         }
         if (rules.useBcc()) {
-            feedWithAddresses(output, message1.getRecipients(Message.RecipientType.BCC));
+            feedWithAddresses(output, message1.getRecipients(Message.RecipientType.BCC), rules.usePersonals());
         }
         if (rules.useSubject()) {
             feedWithSubject(output, message1.getSubject());
@@ -81,14 +83,21 @@ public final class MessageFingerPrint {
         feedWithSeparator(baos);
     }
 
-    private static void feedWithAddresses(ByteArrayOutputStream baos, Address[] list) {
+    private static void feedWithAddresses(ByteArrayOutputStream baos, Address[] list, boolean usePersonals) {
         if (list!=null && list.length>0) {
             Set<String> addresses = new TreeSet<>(String::compareTo);
             for (Address address : list) {
                 if (address instanceof InternetAddress) {
-                    addresses.add(((InternetAddress) address).getAddress().toLowerCase());
+                    if (usePersonals) {
+                        InternetAddress a = (InternetAddress)address;
+                        String p = a.getPersonal();
+                        addresses.add((p!=null? p+" " : "")+"<"+((InternetAddress)address).getAddress()+">");
+                    }
+                    else {
+                        addresses.add(((InternetAddress)address).getAddress());
+                    }
                 } else {
-                    addresses.add(address.toString().toLowerCase());
+                    addresses.add(address.toString());
                 }
             }
             addresses.forEach(string -> {
@@ -116,12 +125,7 @@ public final class MessageFingerPrint {
 
     private static void feedWithStrings(ByteArrayOutputStream baos, String[] values) {
         if (values!=null) {
-            Set<String> list = new TreeSet<>(String::compareTo);
-            for (String value : values) {
-                if (value != null) {
-                    list.add(value);
-                }
-            }
+            Set<String> list = toSet(values);
             for (String v : list) {
                 byte[] buffer = v.trim().getBytes(StandardCharsets.UTF_8);
                 baos.write(buffer, 0, buffer.length);
