@@ -85,22 +85,7 @@ public final class MessageFingerPrint {
 
     private static void feedWithAddresses(ByteArrayOutputStream baos, Address[] list, boolean usePersonals) {
         if (list!=null && list.length>0) {
-            Set<String> addresses = new TreeSet<>(String::compareTo);
-            for (Address address : list) {
-                if (address instanceof InternetAddress) {
-                    if (usePersonals) {
-                        InternetAddress a = (InternetAddress)address;
-                        String p = a.getPersonal();
-                        addresses.add((p!=null? p+" " : "")+"<"+((InternetAddress)address).getAddress()+">");
-                    }
-                    else {
-                        addresses.add(((InternetAddress)address).getAddress());
-                    }
-                } else {
-                    addresses.add(address.toString());
-                }
-            }
-            addresses.forEach(string -> {
+            toStringSet(list, usePersonals).forEach(string -> {
                 byte[] buffer = string.getBytes(StandardCharsets.UTF_8);
                 baos.write(buffer, 0, buffer.length);
                 baos.write(addresses_separator, 0, addresses_separator.length);
@@ -108,6 +93,25 @@ public final class MessageFingerPrint {
         }
 
         feedWithSeparator(baos);
+    }
+
+    private static Set<String> toStringSet(Address[] list, boolean usePersonals) {
+        Set<String> addresses = new TreeSet<>(String::compareTo);
+        for (Address address : list) {
+            if (address instanceof InternetAddress) {
+                if (usePersonals) {
+                    InternetAddress a = (InternetAddress)address;
+                    String p = a.getPersonal();
+                    addresses.add((p!=null? p+" " : "")+"<"+((InternetAddress)address).getAddress()+">");
+                }
+                else {
+                    addresses.add(((InternetAddress)address).getAddress());
+                }
+            } else {
+                addresses.add(address.toString());
+            }
+        }
+        return addresses;
     }
 
     private static void feedWithSeparator(ByteArrayOutputStream baos) {

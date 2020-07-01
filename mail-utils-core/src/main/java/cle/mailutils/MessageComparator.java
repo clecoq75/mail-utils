@@ -90,7 +90,7 @@ public final class MessageComparator {
         return !rules.useBcc() || !recipientsAreNotEquals(rules, message1, message2, BCC);
     }
 
-    static private boolean recipientsAreNotEquals(MessageComparisonRules rules, MimeMessage message1, MimeMessage message2, javax.mail.Message.RecipientType type) throws MessagingException {
+    private static boolean recipientsAreNotEquals(MessageComparisonRules rules, MimeMessage message1, MimeMessage message2, javax.mail.Message.RecipientType type) throws MessagingException {
         Address[] recipients1 = message1.getRecipients(type);
         Address[] recipients2 = message2.getRecipients(type);
         return !AddressUtils.equals(recipients1, recipients2, rules.usePersonals());
