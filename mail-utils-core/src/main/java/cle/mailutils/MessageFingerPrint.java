@@ -71,7 +71,7 @@ public final class MessageFingerPrint {
             feedWithStrings(output, message1.getHeader(header));
         }
 
-        return DigestUtils.md5Hex(output.toByteArray());
+        return DigestUtils.sha256Hex(output.toByteArray());
     }
 
     private static void feedWithDate(ByteArrayOutputStream baos, Date date) {
